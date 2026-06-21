@@ -1,0 +1,615 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1rem 0}
+.topic-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.topic-btn{padding:5px 11px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.topic-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.board-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.board-btn{padding:7px 18px;font-size:13px;background:none;border:none;border-bottom:2px solid transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;margin-bottom:-0.5px}
+.board-btn.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.code-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);overflow:hidden;margin-top:0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.code-label{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-mono)}
+.copy-btn{font-size:11px;padding:3px 9px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.copy-btn:hover{background:var(--color-background-secondary)}
+pre{padding:14px 16px;overflow-x:auto;font-family:var(--font-mono);font-size:12.5px;line-height:1.65;color:var(--color-text-primary)}
+.note{font-size:12px;color:var(--color-text-secondary);padding:8px 12px;background:var(--color-background-secondary);border-left:2px solid #378ADD;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin-bottom:10px}
+.lib-tag{display:inline-block;font-size:11px;font-family:var(--font-mono);background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:4px;padding:1px 6px;color:var(--color-text-secondary);margin:2px 2px 2px 0}
+.libs{padding:6px 14px 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:11.5px;color:var(--color-text-secondary)}
+.kw{color:#185FA5}.fn{color:#0F6E56}.cm{color:#888780;font-style:italic}.str{color:#854F0B}.num{color:#993C1D}.pp{color:#993556}
+</style>
+<div class="wrap">
+<h2 class="sr-only">ESP32 and Arduino practice code examples for 8 topics</h2>
+<div class="topic-tabs" id="topicTabs"></div>
+<div id="panel"></div>
+</div>
+<script>
+const topics=[
+{id:'din',label:'1. Digital Input'},
+{id:'dout',label:'2. Digital Output'},
+{id:'ain',label:'3. Analog Input'},
+{id:'aout',label:'4. Analog Output'},
+{id:'i2cin',label:'5. I2C Input'},
+{id:'i2cout',label:'6. I2C Output (OLED)'},
+{id:'wifi',label:'7. WiFi'},
+{id:'bt',label:'8. Bluetooth'},
+];
+
+const codes={
+din:{
+note:'',
+libs:{ard:[],esp:[]},
+ard:`// Digital Input — Arduino
+// Button on pin 2, Serial Monitor output
+
+<span class="kw">const</span> <span class="kw">int</span> buttonPin = <span class="num">2</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(buttonPin, INPUT_PULLUP);
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+  Serial.<span class="fn">println</span>(<span class="str">"Digital Input ready"</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> state = <span class="fn">digitalRead</span>(buttonPin);
+
+  <span class="kw">if</span> (state == LOW) {           <span class="cm">// INPUT_PULLUP: LOW = pressed</span>
+    Serial.<span class="fn">println</span>(<span class="str">"Button PRESSED"</span>);
+  } <span class="kw">else</span> {
+    Serial.<span class="fn">println</span>(<span class="str">"Button RELEASED"</span>);
+  }
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}`,
+esp:`// Digital Input — ESP32
+// Button on GPIO4, Serial Monitor output
+
+<span class="kw">const</span> <span class="kw">int</span> buttonPin = <span class="num">4</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(buttonPin, INPUT_PULLUP);
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);        <span class="cm">// ESP32 uses 115200 baud</span>
+  Serial.<span class="fn">println</span>(<span class="str">"Digital Input ready"</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> state = <span class="fn">digitalRead</span>(buttonPin);
+
+  <span class="kw">if</span> (state == LOW) {           <span class="cm">// INPUT_PULLUP: LOW = pressed</span>
+    Serial.<span class="fn">println</span>(<span class="str">"Button PRESSED"</span>);
+  } <span class="kw">else</span> {
+    Serial.<span class="fn">println</span>(<span class="str">"Button RELEASED"</span>);
+  }
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}`
+},
+dout:{
+note:'',
+libs:{ard:[],esp:[]},
+ard:`// Digital Output — Arduino
+// Blink built-in LED on pin 13
+
+<span class="kw">const</span> <span class="kw">int</span> ledPin = <span class="num">13</span>;         <span class="cm">// Built-in LED</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(ledPin, HIGH);
+  Serial.<span class="fn">println</span>(<span class="str">"LED ON"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+
+  <span class="fn">digitalWrite</span>(ledPin, LOW);
+  Serial.<span class="fn">println</span>(<span class="str">"LED OFF"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`,
+esp:`// Digital Output — ESP32
+// Blink built-in LED on GPIO2
+
+<span class="kw">const</span> <span class="kw">int</span> ledPin = <span class="num">2</span>;           <span class="cm">// Built-in LED on most ESP32 boards</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(ledPin, HIGH);
+  Serial.<span class="fn">println</span>(<span class="str">"LED ON"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+
+  <span class="fn">digitalWrite</span>(ledPin, LOW);
+  Serial.<span class="fn">println</span>(<span class="str">"LED OFF"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`
+},
+ain:{
+note:'Analog read from a potentiometer or sensor. Arduino ADC: 10-bit (0–1023). ESP32 ADC: 12-bit (0–4095).',
+libs:{ard:[],esp:[]},
+ard:`// Analog Input — Arduino
+// Sensor on A0 | Threshold: 512 | LED on pin 13
+
+<span class="kw">const</span> <span class="kw">int</span> sensorPin  = A0;
+<span class="kw">const</span> <span class="kw">int</span> ledPin     = <span class="num">13</span>;
+<span class="kw">const</span> <span class="kw">int</span> threshold  = <span class="num">512</span>;       <span class="cm">// 0–1023 range (10-bit ADC)</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> value = <span class="fn">analogRead</span>(sensorPin);
+
+  Serial.<span class="fn">print</span>(<span class="str">"Sensor: "</span>);
+  Serial.<span class="fn">print</span>(value);
+  Serial.<span class="fn">print</span>(<span class="str">"  |  Threshold: "</span>);
+  Serial.<span class="fn">println</span>(threshold);
+
+  <span class="kw">if</span> (value > threshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">300</span>);
+}`,
+esp:`// Analog Input — ESP32
+// Sensor on GPIO34 (ADC only pin) | Threshold: 2048 | LED on GPIO2
+
+<span class="kw">const</span> <span class="kw">int</span> sensorPin  = <span class="num">34</span>;       <span class="cm">// ADC1_CH6 — input only pin</span>
+<span class="kw">const</span> <span class="kw">int</span> ledPin     = <span class="num">2</span>;
+<span class="kw">const</span> <span class="kw">int</span> threshold  = <span class="num">2048</span>;      <span class="cm">// 0–4095 range (12-bit ADC)</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> value = <span class="fn">analogRead</span>(sensorPin);
+
+  Serial.<span class="fn">print</span>(<span class="str">"Sensor: "</span>);
+  Serial.<span class="fn">print</span>(value);
+  Serial.<span class="fn">print</span>(<span class="str">"  |  Threshold: "</span>);
+  Serial.<span class="fn">println</span>(threshold);
+
+  <span class="kw">if</span> (value > threshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">300</span>);
+}`
+},
+aout:{
+note:'PWM analog output. Value ramps up 0→255 automatically to simulate threshold crossing.',
+libs:{ard:[],esp:[]},
+ard:`// Analog Output (PWM) — Arduino
+// PWM on pin 9 | Threshold: 128 | LED on pin 13
+
+<span class="kw">const</span> <span class="kw">int</span> pwmPin    = <span class="num">9</span>;         <span class="cm">// Must be a PWM pin (~)</span>
+<span class="kw">const</span> <span class="kw">int</span> ledPin    = <span class="num">13</span>;
+<span class="kw">const</span> <span class="kw">int</span> threshold = <span class="num">128</span>;        <span class="cm">// 0–255</span>
+<span class="kw">int</span> pwmValue = <span class="num">0</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(pwmPin, OUTPUT);
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  pwmValue = (pwmValue + <span class="num">5</span>) % <span class="num">256</span>; <span class="cm">// Ramp 0 → 255</span>
+  <span class="fn">analogWrite</span>(pwmPin, pwmValue);
+
+  Serial.<span class="fn">print</span>(<span class="str">"PWM: "</span>);
+  Serial.<span class="fn">println</span>(pwmValue);
+
+  <span class="kw">if</span> (pwmValue > threshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">50</span>);
+}`,
+esp:`// Analog Output (PWM/LEDC) — ESP32
+// PWM on GPIO18 | Threshold: 128 | LED on GPIO2
+
+<span class="kw">const</span> <span class="kw">int</span> pwmPin       = <span class="num">18</span>;
+<span class="kw">const</span> <span class="kw">int</span> ledPin       = <span class="num">2</span>;
+<span class="kw">const</span> <span class="kw">int</span> pwmChannel   = <span class="num">0</span>;      <span class="cm">// LEDC channel (0–15)</span>
+<span class="kw">const</span> <span class="kw">int</span> pwmFreq      = <span class="num">5000</span>;   <span class="cm">// Hz</span>
+<span class="kw">const</span> <span class="kw">int</span> pwmResolution = <span class="num">8</span>;     <span class="cm">// 8-bit: 0–255</span>
+<span class="kw">const</span> <span class="kw">int</span> threshold    = <span class="num">128</span>;
+<span class="kw">int</span> pwmValue = <span class="num">0</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">ledcSetup</span>(pwmChannel, pwmFreq, pwmResolution);
+  <span class="fn">ledcAttachPin</span>(pwmPin, pwmChannel);
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  pwmValue = (pwmValue + <span class="num">5</span>) % <span class="num">256</span>;
+  <span class="fn">ledcWrite</span>(pwmChannel, pwmValue);
+
+  Serial.<span class="fn">print</span>(<span class="str">"PWM: "</span>);
+  Serial.<span class="fn">println</span>(pwmValue);
+
+  <span class="kw">if</span> (pwmValue > threshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">50</span>);
+}`
+},
+i2cin:{
+note:'Uses BMP280 temperature sensor (0x76). Library: Adafruit BMP280. Trigger LED if temp > 30°C.',
+libs:{ard:['Wire (built-in)','Adafruit BMP280'],esp:['Wire (built-in)','Adafruit BMP280']},
+ard:`// I2C Input — Arduino + BMP280
+// SDA=A4  SCL=A5 | LED on pin 13 | Threshold: 30°C
+
+<span class="pp">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_BMP280.h&gt;</span>
+
+Adafruit_BMP280 bmp;
+<span class="kw">const</span> <span class="kw">int</span>   ledPin        = <span class="num">13</span>;
+<span class="kw">const</span> <span class="kw">float</span> tempThreshold = <span class="num">30.0</span>; <span class="cm">// °C</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Wire.<span class="fn">begin</span>();                    <span class="cm">// SDA=A4, SCL=A5</span>
+
+  <span class="kw">if</span> (!bmp.<span class="fn">begin</span>(<span class="num">0x76</span>)) {
+    Serial.<span class="fn">println</span>(<span class="str">"BMP280 not found! Check wiring."</span>);
+    <span class="kw">while</span> (<span class="num">1</span>);
+  }
+  Serial.<span class="fn">println</span>(<span class="str">"BMP280 ready."</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">float</span> temp  = bmp.<span class="fn">readTemperature</span>();
+  <span class="kw">float</span> press = bmp.<span class="fn">readPressure</span>() / <span class="num">100.0F</span>;
+
+  Serial.<span class="fn">print</span>(<span class="str">"Temp: "</span>); Serial.<span class="fn">print</span>(temp);  Serial.<span class="fn">println</span>(<span class="str">" C"</span>);
+  Serial.<span class="fn">print</span>(<span class="str">"Pres: "</span>); Serial.<span class="fn">print</span>(press); Serial.<span class="fn">println</span>(<span class="str">" hPa"</span>);
+
+  <span class="kw">if</span> (temp > tempThreshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> TEMP THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`,
+esp:`// I2C Input — ESP32 + BMP280
+// SDA=21  SCL=22 | LED on GPIO2 | Threshold: 30°C
+
+<span class="pp">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_BMP280.h&gt;</span>
+
+Adafruit_BMP280 bmp;
+<span class="kw">const</span> <span class="kw">int</span>   ledPin        = <span class="num">2</span>;
+<span class="kw">const</span> <span class="kw">float</span> tempThreshold = <span class="num">30.0</span>; <span class="cm">// °C</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+  Wire.<span class="fn">begin</span>(<span class="num">21</span>, <span class="num">22</span>);             <span class="cm">// SDA=21, SCL=22</span>
+
+  <span class="kw">if</span> (!bmp.<span class="fn">begin</span>(<span class="num">0x76</span>)) {
+    Serial.<span class="fn">println</span>(<span class="str">"BMP280 not found! Check wiring."</span>);
+    <span class="kw">while</span> (<span class="num">1</span>);
+  }
+  Serial.<span class="fn">println</span>(<span class="str">"BMP280 ready."</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">float</span> temp  = bmp.<span class="fn">readTemperature</span>();
+  <span class="kw">float</span> press = bmp.<span class="fn">readPressure</span>() / <span class="num">100.0F</span>;
+
+  Serial.<span class="fn">print</span>(<span class="str">"Temp: "</span>); Serial.<span class="fn">print</span>(temp);  Serial.<span class="fn">println</span>(<span class="str">" C"</span>);
+  Serial.<span class="fn">print</span>(<span class="str">"Pres: "</span>); Serial.<span class="fn">print</span>(press); Serial.<span class="fn">println</span>(<span class="str">" hPa"</span>);
+
+  <span class="kw">if</span> (temp > tempThreshold) {
+    <span class="fn">digitalWrite</span>(ledPin, HIGH);
+    Serial.<span class="fn">println</span>(<span class="str">">> TEMP THRESHOLD REACHED — LED ON"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(ledPin, LOW);
+  }
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`
+},
+i2cout:{
+note:'0.91" OLED = 128×32 SSD1306, address 0x3C. Libraries: Adafruit GFX + Adafruit SSD1306.',
+libs:{ard:['Wire (built-in)','Adafruit GFX','Adafruit SSD1306'],esp:['Wire (built-in)','Adafruit GFX','Adafruit SSD1306']},
+ard:`// I2C Output — Arduino + 0.91" OLED (SSD1306)
+// SDA=A4  SCL=A5 | 128x32 display
+
+<span class="pp">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_GFX.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_SSD1306.h&gt;</span>
+
+<span class="pp">#define</span> SCREEN_WIDTH   <span class="num">128</span>
+<span class="pp">#define</span> SCREEN_HEIGHT  <span class="num">32</span>
+<span class="pp">#define</span> OLED_RESET     -<span class="num">1</span>   <span class="cm">// Not used</span>
+<span class="pp">#define</span> SCREEN_ADDR    <span class="num">0x3C</span>
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET);
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+
+  <span class="kw">if</span> (!display.<span class="fn">begin</span>(SSD1306_SWITCHCAPVCC, SCREEN_ADDR)) {
+    Serial.<span class="fn">println</span>(<span class="str">"SSD1306 not found!"</span>);
+    <span class="kw">while</span> (<span class="num">1</span>);
+  }
+
+  display.<span class="fn">clearDisplay</span>();
+  display.<span class="fn">setTextColor</span>(SSD1306_WHITE);
+  display.<span class="fn">setTextSize</span>(<span class="num">1</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  display.<span class="fn">println</span>(<span class="str">"Hello World!"</span>);
+  display.<span class="fn">println</span>(<span class="str">"Arduino + OLED"</span>);
+  display.<span class="fn">display</span>();
+  <span class="fn">delay</span>(<span class="num">2000</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">static</span> <span class="kw">int</span> count = <span class="num">0</span>;
+
+  display.<span class="fn">clearDisplay</span>();
+  display.<span class="fn">setTextSize</span>(<span class="num">1</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  display.<span class="fn">println</span>(<span class="str">"Counter:"</span>);
+  display.<span class="fn">setTextSize</span>(<span class="num">2</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">14</span>);
+  display.<span class="fn">println</span>(count++);
+  display.<span class="fn">display</span>();
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`,
+esp:`// I2C Output — ESP32 + 0.91" OLED (SSD1306)
+// SDA=21  SCL=22 | 128x32 display
+
+<span class="pp">#include</span> <span class="str">&lt;Wire.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_GFX.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;Adafruit_SSD1306.h&gt;</span>
+
+<span class="pp">#define</span> SCREEN_WIDTH   <span class="num">128</span>
+<span class="pp">#define</span> SCREEN_HEIGHT  <span class="num">32</span>
+<span class="pp">#define</span> OLED_RESET     -<span class="num">1</span>
+<span class="pp">#define</span> SCREEN_ADDR    <span class="num">0x3C</span>
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET);
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+  Wire.<span class="fn">begin</span>(<span class="num">21</span>, <span class="num">22</span>);            <span class="cm">// SDA=21, SCL=22</span>
+
+  <span class="kw">if</span> (!display.<span class="fn">begin</span>(SSD1306_SWITCHCAPVCC, SCREEN_ADDR)) {
+    Serial.<span class="fn">println</span>(<span class="str">"SSD1306 not found!"</span>);
+    <span class="kw">while</span> (<span class="num">1</span>);
+  }
+
+  display.<span class="fn">clearDisplay</span>();
+  display.<span class="fn">setTextColor</span>(SSD1306_WHITE);
+  display.<span class="fn">setTextSize</span>(<span class="num">1</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  display.<span class="fn">println</span>(<span class="str">"Hello World!"</span>);
+  display.<span class="fn">println</span>(<span class="str">"ESP32 + OLED"</span>);
+  display.<span class="fn">display</span>();
+  <span class="fn">delay</span>(<span class="num">2000</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">static</span> <span class="kw">int</span> count = <span class="num">0</span>;
+
+  display.<span class="fn">clearDisplay</span>();
+  display.<span class="fn">setTextSize</span>(<span class="num">1</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  display.<span class="fn">println</span>(<span class="str">"Counter:"</span>);
+  display.<span class="fn">setTextSize</span>(<span class="num">2</span>);
+  display.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">14</span>);
+  display.<span class="fn">println</span>(count++);
+  display.<span class="fn">display</span>();
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}`
+},
+wifi:{
+note:'Arduino Uno has no built-in WiFi. Use Arduino Uno WiFi Rev2, MKR WiFi 1010, or Nano 33 IoT (WiFiNINA library).',
+libs:{ard:['WiFiNINA'],esp:['WiFi (built-in)']},
+ard:`// WiFi — Arduino (Uno WiFi Rev2 / MKR / Nano 33 IoT)
+// Requires WiFiNINA-compatible board
+
+<span class="pp">#include</span> <span class="str">&lt;WiFiNINA.h&gt;</span>
+
+<span class="kw">const</span> <span class="kw">char</span> ssid[] = <span class="str">"YOUR_SSID"</span>;
+<span class="kw">const</span> <span class="kw">char</span> pass[] = <span class="str">"YOUR_PASSWORD"</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="kw">while</span> (!Serial);
+
+  Serial.<span class="fn">print</span>(<span class="str">"Connecting to: "</span>);
+  Serial.<span class="fn">println</span>(ssid);
+
+  WiFi.<span class="fn">begin</span>(ssid, pass);
+
+  <span class="kw">while</span> (WiFi.<span class="fn">status</span>() != WL_CONNECTED) {
+    <span class="fn">delay</span>(<span class="num">500</span>);
+    Serial.<span class="fn">print</span>(<span class="str">"."</span>);
+  }
+
+  Serial.<span class="fn">println</span>(<span class="str">"\nConnected!"</span>);
+  Serial.<span class="fn">print</span>(<span class="str">"IP: "</span>);
+  Serial.<span class="fn">println</span>(WiFi.<span class="fn">localIP</span>());
+  Serial.<span class="fn">print</span>(<span class="str">"RSSI: "</span>);
+  Serial.<span class="fn">print</span>(WiFi.<span class="fn">RSSI</span>());
+  Serial.<span class="fn">println</span>(<span class="str">" dBm"</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">if</span> (WiFi.<span class="fn">status</span>() == WL_CONNECTED) {
+    Serial.<span class="fn">println</span>(<span class="str">"WiFi: Connected"</span>);
+  } <span class="kw">else</span> {
+    Serial.<span class="fn">println</span>(<span class="str">"WiFi: Disconnected — Reconnecting..."</span>);
+    WiFi.<span class="fn">begin</span>(ssid, pass);
+  }
+  <span class="fn">delay</span>(<span class="num">5000</span>);
+}`,
+esp:`// WiFi — ESP32
+// Built-in WiFi, no extra hardware needed
+
+<span class="pp">#include</span> <span class="str">&lt;WiFi.h&gt;</span>
+
+<span class="kw">const</span> <span class="kw">char</span>* ssid     = <span class="str">"YOUR_SSID"</span>;
+<span class="kw">const</span> <span class="kw">char</span>* password = <span class="str">"YOUR_PASSWORD"</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+
+  WiFi.<span class="fn">mode</span>(WIFI_STA);
+  WiFi.<span class="fn">begin</span>(ssid, password);
+
+  Serial.<span class="fn">print</span>(<span class="str">"Connecting to: "</span>);
+  Serial.<span class="fn">println</span>(ssid);
+
+  <span class="kw">while</span> (WiFi.<span class="fn">status</span>() != WL_CONNECTED) {
+    <span class="fn">delay</span>(<span class="num">500</span>);
+    Serial.<span class="fn">print</span>(<span class="str">"."</span>);
+  }
+
+  Serial.<span class="fn">println</span>(<span class="str">"\nConnected!"</span>);
+  Serial.<span class="fn">print</span>(<span class="str">"IP: "</span>);
+  Serial.<span class="fn">println</span>(WiFi.<span class="fn">localIP</span>());
+  Serial.<span class="fn">print</span>(<span class="str">"RSSI: "</span>);
+  Serial.<span class="fn">print</span>(WiFi.<span class="fn">RSSI</span>());
+  Serial.<span class="fn">println</span>(<span class="str">" dBm"</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">if</span> (WiFi.<span class="fn">status</span>() != WL_CONNECTED) {
+    Serial.<span class="fn">println</span>(<span class="str">"WiFi lost — reconnecting..."</span>);
+    WiFi.<span class="fn">reconnect</span>();
+    <span class="fn">delay</span>(<span class="num">3000</span>);
+  } <span class="kw">else</span> {
+    Serial.<span class="fn">println</span>(<span class="str">"WiFi: Connected"</span>);
+  }
+  <span class="fn">delay</span>(<span class="num">5000</span>);
+}`
+},
+bt:{
+note:'Arduino Uno has no built-in Bluetooth. Use an HC-05 module wired to pins 10 (RX) & 11 (TX). ESP32 has built-in Classic Bluetooth.',
+libs:{ard:['SoftwareSerial (built-in)'],esp:['BluetoothSerial (built-in ESP32)']},
+ard:`// Bluetooth — Arduino + HC-05 module
+// HC-05 RX → pin 11 (TX) | HC-05 TX → pin 10 (RX)
+
+<span class="pp">#include</span> <span class="str">&lt;SoftwareSerial.h&gt;</span>
+
+SoftwareSerial BTSerial(<span class="num">10</span>, <span class="num">11</span>); <span class="cm">// RX, TX</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">9600</span>);
+  BTSerial.<span class="fn">begin</span>(<span class="num">9600</span>);          <span class="cm">// HC-05 default baud rate</span>
+  Serial.<span class="fn">println</span>(<span class="str">"Bluetooth ready. Pair with HC-05."</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Bluetooth → Serial Monitor</span>
+  <span class="kw">if</span> (BTSerial.<span class="fn">available</span>()) {
+    <span class="kw">char</span> c = BTSerial.<span class="fn">read</span>();
+    Serial.<span class="fn">print</span>(<span class="str">"BT received: "</span>);
+    Serial.<span class="fn">println</span>(c);
+    BTSerial.<span class="fn">print</span>(<span class="str">"Echo: "</span>);   <span class="cm">// Echo back to phone</span>
+    BTSerial.<span class="fn">println</span>(c);
+  }
+
+  <span class="cm">// Serial Monitor → Bluetooth</span>
+  <span class="kw">if</span> (Serial.<span class="fn">available</span>()) {
+    BTSerial.<span class="fn">write</span>(Serial.<span class="fn">read</span>());
+  }
+}`,
+esp:`// Bluetooth — ESP32
+// Built-in Classic Bluetooth (BluetoothSerial)
+
+<span class="pp">#include</span> <span class="str">"BluetoothSerial.h"</span>
+
+BluetoothSerial SerialBT;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+  SerialBT.<span class="fn">begin</span>(<span class="str">"ESP32-BT"</span>);    <span class="cm">// Name shown when pairing</span>
+  Serial.<span class="fn">println</span>(<span class="str">"Bluetooth ready. Pair with 'ESP32-BT'."</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Bluetooth → Serial Monitor</span>
+  <span class="kw">if</span> (SerialBT.<span class="fn">available</span>()) {
+    <span class="kw">char</span> c = SerialBT.<span class="fn">read</span>();
+    Serial.<span class="fn">print</span>(<span class="str">"BT received: "</span>);
+    Serial.<span class="fn">println</span>(c);
+    SerialBT.<span class="fn">print</span>(<span class="str">"Echo: "</span>);   <span class="cm">// Echo back to phone</span>
+    SerialBT.<span class="fn">println</span>(c);
+  }
+
+  <span class="cm">// Serial Monitor → Bluetooth</span>
+  <span class="kw">if</span> (Serial.<span class="fn">available</span>()) {
+    SerialBT.<span class="fn">write</span>(Serial.<span class="fn">read</span>());
+  }
+}`
+}
+};
+
+let activeTopic='din', activeBoard='ard';
+
+function render(){
+  const t=codes[activeTopic];
+  const libList=t.libs[activeBoard];
+  const codeStr=activeBoard==='ard'?t.ard:t.esp;
+  const boardLabel=activeBoard==='ard'?'Arduino':'ESP32';
+  const fileName=activeTopic+'_'+activeBoard+'.ino';
+
+  document.getElementById('panel').innerHTML=`
+    ${t.note?`<div class="note">${t.note}</div>`:''}
+    <div class="code-box">
+      ${libList.length?`<div class="libs"><i class="ti ti-package" aria-hidden="true" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Libraries: ${libList.map(l=>`<span class="lib-tag">${l}</span>`).join('')}</div>`:''}
+      <div style="border-bottom:0.5px solid var(--color-border-tertiary)">
+        <div class="board-tabs">
+          <button class="board-btn ${activeBoard==='ard'?'active':''}" onclick="setBoard('ard')">Arduino</button>
+          <button class="board-btn ${activeBoard==='esp'?'active':''}" onclick="setBoard('esp')">ESP32</button>
+        </div>
+      </div>
+      <div class="code-header">
+        <span class="code-label">${fileName}</span>
+        <button class="copy-btn" onclick="copyCode(this,'${activeTopic}','${activeBoard}')">Copy</button>
+      </div>
+      <pre>${codeStr}</pre>
+    </div>`;
+}
+
+function renderTopics(){
+  document.getElementById('topicTabs').innerHTML=topics.map(t=>
+    `<button class="topic-btn ${t.id===activeTopic?'active':''}" onclick="setTopic('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+window.setTopic=function(id){activeTopic=id;renderTopics();render();}
+window.setBoard=function(b){activeBoard=b;render();}
+window.copyCode=function(btn,topic,board){
+  const raw=(board==='ard'?codes[topic].ard:codes[topic].esp).replace(/<[^>]+>/g,'');
+  navigator.clipboard.writeText(raw).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});
+}
+
+renderTopics();
+render();
+</script>

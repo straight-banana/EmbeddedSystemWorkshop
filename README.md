@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# ⚡ MCU Workshop Visualizer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive React app that turns Arduino & ESP32 embedded-systems workshop notes into hands-on, animated visualizations — press buttons, drag sliders, and watch real-time signal graphs instead of just reading static diagrams.
 
-## Available Scripts
+No external UI libraries, no Tailwind, no backend — just React, Canvas, and SVG.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🚀 Running It
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+You have three options, from zero-setup to full project.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Option 1 — Just double-click it (no install)
 
-### `npm test`
+Open **`EmbeddedVisualizer_standalone.html`** directly in any browser. It loads React and Babel from a CDN and runs immediately — best for a quick look or demoing on someone else's PC.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+> Requires an internet connection (for the CDN scripts), but nothing to install.
 
-### `npm run build`
+### Option 2 — Vite (recommended for editing)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm create vite@latest mcu-visualizer -- --template react
+cd mcu-visualizer
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Replace the contents of `src/App.jsx` with **`App.jsx`** from this project, then:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+npm run dev
+```
 
-### `npm run eject`
+Open the printed `localhost` URL.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Option 3 — Create React App
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npx create-react-app mcu-visualizer
+cd mcu-visualizer
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Replace the contents of `src/App.js` with **`App.jsx`**, then:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm start
+```
 
-## Learn More
+> No extra packages are needed in either setup — the component only uses core React (`useState`, `useEffect`, `useRef`) plus the browser's built-in Canvas and SVG.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📁 Files in This Project
 
-### Code Splitting
+| File | Purpose |
+|---|---|
+| `App.jsx` | The component, pre-named `App` — drop straight into `src/App.jsx` (Vite) or `src/App.js` (CRA) with zero edits |
+| `EmbeddedVisualizer.jsx` | Same component, named `EmbeddedVisualizer` — use if you're embedding it elsewhere or want a custom file/component name |
+| `EmbeddedVisualizer_standalone.html` | Self-contained file with React + Babel loaded via CDN — double-click and run, no Node/npm required |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 🧠 Topics Covered
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+| # | Topic | What You Can Interact With |
+|---|---|---|
+| 1 | **Arduino vs ESP32** | Spec comparison bars, voltage compatibility warning |
+| 2 | **Voltage & Threshold** | Drag voltage slider to see HIGH/LOW/Undefined zones; flip between Floating / Pull-up / Pull-down to see how resistors eliminate the undefined zone |
+| 3 | **Digital vs Analog** | Hold a button to drive a live digital signal; turn a dial to drive a live analog signal; toggle noise to see threshold immunity vs. raw sensitivity |
+| 4 | **I2C Protocol** | Animated SDA/SCL timing diagram |
+| 5 | **Serial & Baud Rate** | Mismatch board vs. monitor baud rates and watch garbage characters appear |
+| 6 | **ADC Conversion** | Slide analog voltage, see live 10-bit/12-bit digital conversion |
+| 7 | **PCM (Sampling)** | Adjust sample rate, bit depth, and signal frequency; trigger real aliasing when you violate the Nyquist rate |
+| 8 | **PWM Duty Cycle** | Control frequency + duty cycle + slow-motion playback to see *why* a blinking LED looks steady (persistence of vision / flicker fusion) |
+| 9 | **GPIO & Resistors** | Press-and-hold button wired through animated pull-up/pull-down circuit diagrams |
+| 10 | **Boot & Memory** | Step through the MCU boot sequence; compare Flash/SRAM/EEPROM sizes |
+| 11 | **delay() vs millis()** | Side-by-side blocking vs. non-blocking timing simulation |
 
-### Making a Progressive Web App
+Every section includes a "Easy Idea" callout with a plain-language (Bengali) analogy for the concept.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## 🛠️ Tech Stack
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **React** — `useState`, `useEffect`, `useRef` only (no extra hooks/libraries)
+- **Canvas API** — real-time oscilloscope-style waveforms
+- **Inline SVG** — circuit diagrams (pull-up/pull-down, rotary dial)
+- **Plain inline styles** — no Tailwind/CSS framework required
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 📝 Notes
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- All animations use `requestAnimationFrame` for smooth 60fps rendering without unnecessary re-renders (canvas/LED visuals are mutated imperatively via refs where needed).
+- The sidebar navigation remounts each section on switch (`key={active}`) so timers and animation loops reset cleanly between topics.
+- Source content adapted from a bilingual (Bengali/English) Arduino & ESP32 workshop notes document.
